@@ -17,7 +17,7 @@ jobs:
     - name: Set Up Python 3.11
       uses: actions/setup-python@v5
       with:
-        python-node: '3.11'
+        python-version: '3.11'
 
     - name: Install Enterprise Dependencies
       run: |
@@ -26,5 +26,6 @@ jobs:
         pip install pytest
 
     - name: Execute Automated Risk Engine Tests
+      # Running with 'python -m' fixes the ModuleNotFoundError
       run: |
-        pytest tests/
+        python -m pytest tests/
