@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  verify-n-fund-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: verify_n_fund_container
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      - ./config:/app/config
+    restart: unless-stopped
