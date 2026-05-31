@@ -1,0 +1,8 @@
+.env
+config/audit_log.csv
+.git
+.github
+__pycache__
+tests
+venv
+.pytest_cache
