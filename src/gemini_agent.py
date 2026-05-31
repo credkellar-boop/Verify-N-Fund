@@ -1,4 +1,4 @@
-import os
+in import os
 import google.generativeai as genai
 from dotenv import load_dotenv
 
@@ -47,3 +47,31 @@ if __name__ == "__main__":
     off_topic = "Can you write a python script to scrape a weather website?"
     print(f"User: {off_topic}")
     print(f"Gemini: {query_verify_agent(off_topic)}")
+from PIL import Image
+
+def scan_check_image(image_file) -> str:
+    """
+    Processes an uploaded check image using Gemini's vision capabilities
+    under strict check-verification rules.
+    """
+    try:
+        # Convert the Streamlit upload file into a PIL Image format Gemini understands
+        img = Image.open(image_file)
+        
+        model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash",
+            system_instruction=(
+                "You are the Verify-N-Fund automated scanning agent. Analyze the provided check image. "
+                "Extract and output: 1. Bank Name, 2. Check Number, 3. Routing Number, 4. Account Number, "
+                "5. Written Amount vs Number Amount matching status, 6. Presence of a signature. "
+                "Then, flag any obvious anomalies (e.g., blurry MICR line, missing details). "
+                "If the image is not a check, respond with: 'Invalid image type. Please upload a valid check.'"
+            )
+        )
+        
+        # Pass the image directly to the model with a prompt
+        response = model.generate_content([img, "Perform a comprehensive verification scan on this check."])
+        return response.text
+        
+    except Exception as e:
+        return f"Scanning Error: Unable to process the check image. Details: {str(e)}"
