@@ -1,38 +1,43 @@
 import streamlit as st
-from gemini_agent import query_verify_agent
+from gemini_agent import query_verify_agent, scan_check_image
 
-# Set up page configurations
 st.set_page_config(page_title="Verify-N-Fund Dashboard", page_icon="🏦", layout="centered")
 
-# App Header
 st.title("🏦 Verify-N-Fund")
-st.subheader("Automated Check Verification Assistant")
-st.write("Helping currency exchanges and tellers save time securely.")
+st.subheader("Automated Check Verification & AI Scanner")
+st.info("🔒 **System Guardrails Active:** Protected by enterprise compliance rules.")
 
-st.markdown("---")
+# Create tabs to keep the interface extremely organized for busy tellers
+tab1, tab2 = st.tabs(["📸 Scan Check Image", "❓ Ask a Question"])
 
-# Informing users of the guardrails
-st.info("🔒 **System Guardrails Active:** This assistant is explicitly trained to handle check cashing, verification rules, compliance, and fraud queries. General off-topic questions will be filtered out.")
+with tab1:
+    st.markdown("### High-Speed Vision Scanner")
+    st.write("Upload or snap a photo of the check to instantly extract details and run compliance rules.")
+    
+    # File uploader accepts webcam snapshots or file uploads from phone/computer
+    uploaded_check = st.file_uploader("Upload check image...", type=["jpg", "jpeg", "png"])
+    
+    if uploaded_check is not None:
+        # Show a preview thumbnail to the teller
+        st.image(uploaded_check, caption="Uploaded Check Preview", use_container_width=True)
+        
+        if st.button("Run Instant Vision Scan", type="primary"):
+            with st.spinner("Gemini AI is reading check data points..."):
+                scan_results = scan_check_image(uploaded_check)
+                st.markdown("### 📋 Extracted Scan Results")
+                st.success("Analysis Complete")
+                st.write(scan_results)
 
-# User Input Section
-user_query = st.text_input(
-    "Enter verification question or check details:",
-    placeholder="e.g., How do I verify a out-of-state cashier's check?"
-)
-
-# Execution Section
-if st.button("Run Verification Check", type="primary"):
-    if user_query.strip() == "":
-        st.warning("Please type a question or enter check data first.")
-    else:
-        with st.spinner("Analyzing rules and processing routing logic..."):
-            # Call the guarded Gemini agent from our other file
-            ai_response = query_verify_agent(user_query)
-            
-            # Display results
-            st.markdown("### 📋 System Response")
-            st.write(ai_response)
-
-# Footer
-st.markdown("---")
-st.caption("Verify-N-Fund Proprietary System Framework • Enterprise Version 1.0")
+with tab2:
+    st.markdown("### Teller Knowledge Base")
+    user_query = st.text_input(
+        "Enter verification question:",
+        placeholder="e.g., What is the holding period for a out-of-state check over $5,000?"
+    )
+    
+    if st.button("Run Rule Check"):
+        if user_query.strip() != "":
+            with st.spinner("Checking compliance protocols..."):
+                ai_response = query_verify_agent(user_query)
+                st.markdown("### 📋 System Response")
+                st.write(ai_response)
