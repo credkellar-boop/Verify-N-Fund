@@ -27,6 +27,40 @@ with tab1:
                 st.markdown("### 📋 Extracted Scan Results")
                 st.success("Analysis Complete")
                 st.write(scan_results)
+# Import the new risk calculation function at the top of src/app.py
+from verifier import evaluate_check_risk
+
+# ... (Keep your existing code up to the 'uploaded_check' button processing) ...
+
+        if st.button("Run Instant Vision Scan", type="primary"):
+            with st.spinner("Gemini AI is reading check data points..."):
+                scan_results = scan_check_image(uploaded_check)
+                
+                # --- NEW: Run the programmatic risk engine ---
+                risk_analysis = evaluate_check_risk(scan_results)
+                
+                st.markdown("---")
+                st.markdown("### 🛡️ Automated Risk Assessment Matrix")
+                
+                # Display status with custom color coding
+                if risk_analysis["score"] >= 50:
+                    st.error(f"**System Status:** {risk_analysis['status']} (Score: {risk_analysis['score']}/100)")
+                elif risk_analysis["score"] >= 20:
+                    st.warning(f"**System Status:** {risk_analysis['status']} (Score: {risk_analysis['score']}/100)")
+                else:
+                    st.success(f"**System Status:** {risk_analysis['status']} (Score: {risk_analysis['score']}/100)")
+                
+                # Display Next Steps instructions for the busy teller
+                st.info(f"**Required Next Steps:** {risk_analysis['instructions']}")
+                
+                if risk_analysis["flags"]:
+                    st.markdown("**Triggered Risk Flags:**")
+                    for flag in risk_analysis["flags"]:
+                        st.markdown(f"- 🚩 {flag}")
+                        
+                st.markdown("---")
+                st.markdown("### 📋 Raw Extracted Scan Results")
+                st.write(scan_results)
 
 with tab2:
     st.markdown("### Teller Knowledge Base")
